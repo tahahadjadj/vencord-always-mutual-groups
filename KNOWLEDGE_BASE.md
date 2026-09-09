@@ -31,6 +31,8 @@ The profile root classes and ARIA roles are the most update-sensitive integratio
 
 If Discord removes or changes a required profile element, the decorator returns without changing the profile. All injected UI is outside Discord's React tree and is removed when the plugin stops.
 
+The plugin is compiled into a local Vencord renderer. Build Vencord with `--disable-updater`, which removes the updater from the compiled client. This is the durable guard. The `autoUpdate` setting can be restored by settings sync and is not sufficient on its own. When updating Vencord intentionally, fast-forward the checkout, rebuild it, and reinstall the generated desktop files before restarting Discord.
+
 ## Verification checklist
 
 1. Run `npm test` from the Vencord repository root.
