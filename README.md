@@ -11,9 +11,10 @@ Current Vencord builds include an official **MutualGroupDMs** plugin, but Discor
 1. Install Vencord from source.
 2. Copy this whole `AlwaysMutualGroups` folder into `src/userplugins` in your Vencord checkout.
 3. From the Vencord directory, run `pnpm install` if dependencies are not installed.
-4. Add `--disable-updater` to the checkout's `build` script, then run `pnpm build` and `pnpm inject`. This keeps official Vencord updates from replacing the custom renderer.
-5. Restart Discord, open **User Settings → Vencord → Plugins**, and confirm **AlwaysMutualGroups** is enabled.
-6. Update Vencord by fast-forwarding the checkout and rebuilding it. Do not turn the built-in updater back on.
+4. Add `--disable-updater` to the checkout's `build` script, then run `pnpm build` and `pnpm inject`.
+5. Protect the installed bundle with `chflags uchg "$HOME/Library/Application Support/Vencord/dist/"*`.
+6. Restart Discord, open **User Settings → Vencord → Plugins**, and confirm **AlwaysMutualGroups** is enabled.
+7. Before an intentional update, run `chflags nouchg "$HOME/Library/Application Support/Vencord/dist/"*`. Rebuild and reinstall, then apply the protection again.
 
 ## Behavior
 
@@ -25,7 +26,7 @@ Current Vencord builds include an official **MutualGroupDMs** plugin, but Discor
 
 ## Compatibility
 
-Validated against Vencord `1.15.4` and Discord Desktop `0.0.410` on September 9, 2026.
+Validated against Vencord `1.15.6` at commit `339b85b` and Discord Desktop `0.0.411` on September 15, 2026.
 
 Discord profile markup is not a stable API. If the tab disappears after an update, inspect the rendered profile roles and stable profile class names used by `decorateFullProfile` and `decorateProfilePopout`.
 
