@@ -2,7 +2,7 @@
 
 ## Ownership
 
-`index.tsx` owns profile observation, mutual-group lookup, tab insertion, and navigation. `style.css` styles the injected tab panel and group rows.
+`index.tsx` owns profile observation, mutual-group lookup, tab insertion, and click handling. `navigation.ts` validates group selection and invokes the native action before modal dismissal. `style.css` styles the injected tab panel and group rows.
 
 Use Discord's semantic `--text-strong`, `--text-default`, and `--text-muted` tokens for panel text. Legacy profile tokens such as `--header-primary` can resolve to dark foreground colors inside custom dark profile themes.
 
@@ -20,7 +20,7 @@ The plugin does not discover groups the current account cannot access. It only e
 - A `MutationObserver` schedules profile decoration after Discord renders or replaces profile markup.
 - The selected profile ID is retained while the modal is open. Every observer pass re-applies tab selection and panel visibility, preventing Discord React re-renders from restoring Activity over the Mutual Groups panel.
 - The full-profile tab label includes the current group count, matching Discord's `12 Mutual Friends` and `3 Mutual Servers` labels.
-- Group rows store their channel ID and use one capture-phase document handler. Clicking a row calls Discord's profile-close action, routes to its private channel, and then clears remaining modals, so generated markup and React re-renders cannot detach the behavior.
+- Group rows store their channel ID and use one capture-phase document handler. Clicking a row validates the group, resolves the native `selectPrivateChannel` action eagerly, selects the destination, and then clears modals, so generated markup and React re-renders cannot detach the behavior.
 - `.user-profile-modal-v2` scopes full profile tabs. The plugin clones an unselected native tab and the current tab panel class, preserving Discord's active theme and experiment styling.
 - `.user-profile-sidebar` scopes compact profile popouts. The plugin clones the Mutual Servers summary section and replaces its content with the mutual-group count.
 - Profile user IDs come from the target profile's Discord avatar URL. Bots and the current account are excluded.
@@ -28,6 +28,8 @@ The plugin does not discover groups the current account cannot access. It only e
 The profile root classes and ARIA roles are the most update-sensitive integration points. The plugin intentionally avoids Webpack source patches because the July 2026 desktop experiment renders the official patched tab bar but skips its section hook.
 
 ## Failure behavior
+
+Missing/stale groups or unavailable native selection actions leave the profile open with a notice. Actions are resolved again on later clicks. The handler does not use the profile-close lazy proxy or the mangled navigation router, and genuine native navigation exceptions are not suppressed.
 
 If Discord removes or changes a required profile element, the decorator returns without changing the profile. All injected UI is outside Discord's React tree and is removed when the plugin stops.
 

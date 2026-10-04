@@ -8,8 +8,10 @@ import "./style.css";
 
 import definePlugin from "@utils/types";
 import { Channel } from "@vencord/discord-types";
-import { findByPropsLazy } from "@webpack";
-import { ChannelStore, closeAllModals, IconUtils, NavigationRouter, RelationshipStore, UserProfileActions, UserStore } from "@webpack/common";
+import { findByProps, findByPropsLazy } from "@webpack";
+import { ChannelStore, closeAllModals, IconUtils, RelationshipStore, showToast, Toasts, UserStore } from "@webpack/common";
+
+import { selectMutualGroup } from "./navigation";
 
 const UserUtils = findByPropsLazy("getGlobalName");
 
@@ -72,16 +74,19 @@ function countLabel(count: number) {
 }
 
 function handleGroupClick(event: MouseEvent) {
-    const row = (event.target as Element | null)?.closest<HTMLElement>(`.${ROW_CLASS}`);
+    const row = event.target instanceof Element ? event.target.closest<HTMLElement>(`.${ROW_CLASS}`) : null;
     const channelId = row?.dataset.channelId;
     if (!channelId) return;
 
     event.preventDefault();
     event.stopPropagation();
-    activeProfileUserId = null;
-    UserProfileActions.closeUserProfileModal();
-    NavigationRouter.transitionTo(`/channels/@me/${channelId}`);
-    closeAllModals();
+    const selected = selectMutualGroup(channelId, {
+        getChannel: id => ChannelStore.getChannel(id),
+        findSelectionActions: () => findByProps("selectPrivateChannel"),
+        closeModals: closeAllModals
+    });
+    if (selected) activeProfileUserId = null;
+    else showToast("This group is no longer available or Discord's group navigation is not ready. Try reopening the profile.", Toasts.Type.FAILURE);
 }
 
 function buildGroupPanel(nativePanel: HTMLElement, groups: Channel[]) {
